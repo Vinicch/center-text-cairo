@@ -1,0 +1,19 @@
+{
+    "files.associations": {
+        "pangocairo.h": "c",
+        "pango.h": "c",
+        "pango-attributes.h": "c",
+        "stdio.h": "c",
+        "cairo.h": "c",
+        "pango-font.h": "c",
+        "pango-types.h": "c",
+        "pango-coverage.h": "c",
+        "glib-object.h": "c",
+        "glib-enumtypes.h": "c",
+        "genums.h": "c",
+        "gboxed.h": "c",
+        "gbinding.h": "c",
+        "glib.h": "c",
+        "galloca.h": "c"
+    }
+}
