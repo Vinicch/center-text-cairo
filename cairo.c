@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <time.h>
 #include <cairo/cairo.h>
 
 /**
@@ -21,8 +22,25 @@ void measure_block_size(cairo_t *cr, const char *lines[], int *width, int *heigh
 /**
  * Writes all lines into the cairo surface.
  * */
-void write_multiline(cairo_t *cr, const char *lines[], int width, int height)
+void write_multiline(cairo_t *cr, int width, int height)
 {
+    time_t t;
+    struct tm *tmp;
+    char date_time[50];
+
+    // Get current date and time
+    time(&t);
+    tmp = localtime(&t);
+
+    // Format date and time as dd/mm/YYYY HH:MM:SS
+    strftime(date_time, sizeof(date_time), "%d/%m/%Y %X", tmp);
+    printf("%s\n", date_time);
+
+    const char *lines[] = {"Vinicch",
+                           "Hello World",
+                           "Machine User",
+                           date_time};
+
     int block_width = 0, block_height = 0, line_height = 0;
 
     measure_block_size(cr, lines, &block_width, &block_height);
@@ -52,11 +70,6 @@ int main()
     int width = 1280;
     int height = 720;
 
-    const char *lines[] = {"Vinicch",
-                           "Hello World",
-                           "Machine User",
-                           "Date"};
-
     // Create context
     surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
     cr = cairo_create(surface);
@@ -69,7 +82,7 @@ int main()
     cairo_set_font_size(cr, 40.0);
 
     // Write watermark text on surface
-    write_multiline(cr, lines, width, height);
+    write_multiline(cr, width, height);
 
     // Write to image, close and exit
     cairo_surface_write_to_png(surface, "image.png");

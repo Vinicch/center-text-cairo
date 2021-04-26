@@ -14,6 +14,7 @@
         "gboxed.h": "c",
         "gbinding.h": "c",
         "glib.h": "c",
-        "galloca.h": "c"
+        "galloca.h": "c",
+        "time.h": "c"
     }
 }
