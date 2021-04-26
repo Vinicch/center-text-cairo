@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <time.h>
+#include <unistd.h>
 #include <cairo/cairo.h>
 
 /**
@@ -34,11 +35,10 @@ void write_multiline(cairo_t *cr, int width, int height)
 
     // Format date and time as dd/mm/YYYY HH:MM:SS
     strftime(date_time, sizeof(date_time), "%d/%m/%Y %X", tmp);
-    printf("%s\n", date_time);
 
     const char *lines[] = {"Vinicch",
                            "Hello World",
-                           "Machine User",
+                           getlogin(),
                            date_time};
 
     int block_width = 0, block_height = 0, line_height = 0;
