@@ -20,10 +20,14 @@ cfg_t *init_config()
                              CFG_FLOAT("size", 40.0, CFGF_NONE),
                              CFG_END()};
 
+    cfg_opt_t line_opts[] = {CFG_STR("text", "Hello World", CFGF_NONE),
+                             CFG_END()};
+
     cfg_opt_t opts[] = {CFG_INT("width", 800, CFGF_NONE),
                         CFG_INT("height", 600, CFGF_NONE),
                         CFG_SEC("source", source_opts, CFGF_NONE),
                         CFG_SEC("font", font_opts, CFGF_NONE),
+                        CFG_SEC("line", line_opts, CFGF_MULTI),
                         CFG_END()};
 
     cfg_t *cfg;
@@ -52,22 +56,33 @@ void measure_block_size(cairo_t *cr, const char *lines[], int *width, int *heigh
 /**
  * Writes all lines into the cairo surface.
  **/
-void write_multiline(cairo_t *cr, int width, int height)
+void write_multiline(cairo_t *cr, int width, int height, cfg_t *config)
 {
+    // Get the first two lines
+    cfg_t *line_one_config = cfg_getnsec(config, "line", 0);
+    cfg_t *line_two_config = cfg_getnsec(config, "line", 1);
+
+    char *line_one_text = cfg_getstr(line_one_config, "text");
+    char *line_two_text = cfg_getstr(line_two_config, "text");
+
+    // Get username
+    char *username = getlogin();
+
+    // Get current date and time
     time_t t;
     struct tm *tmp;
     char date_time[50];
 
-    // Get current date and time
     time(&t);
     tmp = localtime(&t);
 
     // Format date and time as dd/mm/YYYY HH:MM:SS
     strftime(date_time, sizeof(date_time), "%d/%m/%Y %X", tmp);
 
-    const char *lines[] = {"Vinicch",
-                           "Hello World",
-                           getlogin(),
+    // Build multiline text
+    const char *lines[] = {line_one_text,
+                           line_two_text,
+                           username,
                            date_time};
 
     int block_width = 0, block_height = 0, line_height = 0;
@@ -99,20 +114,20 @@ int main()
     if (cfg_parse(config, "config.conf") == CFG_PARSE_ERROR)
         return 1;
 
-    cfg_t *sourceConfig = cfg_getsec(config, "source");
-    cfg_t *fontConfig = cfg_getsec(config, "font");
+    cfg_t *source_config = cfg_getsec(config, "source");
+    cfg_t *font_config = cfg_getsec(config, "font");
 
     int width = cfg_getint(config, "width");
     int height = cfg_getint(config, "height");
 
-    int red = cfg_getint(sourceConfig, "red");
-    int green = cfg_getint(sourceConfig, "green");
-    int blue = cfg_getint(sourceConfig, "blue");
+    int red = cfg_getint(source_config, "red");
+    int green = cfg_getint(source_config, "green");
+    int blue = cfg_getint(source_config, "blue");
 
-    char *fontFace = cfg_getstr(fontConfig, "face");
-    int slant = cfg_getint(fontConfig, "slant");
-    int weight = cfg_getint(fontConfig, "weight");
-    double size = cfg_getfloat(fontConfig, "size");
+    char *fontFace = cfg_getstr(font_config, "face");
+    int slant = cfg_getint(font_config, "slant");
+    int weight = cfg_getint(font_config, "weight");
+    double size = cfg_getfloat(font_config, "size");
 
     // Begin drawing
     cairo_surface_t *surface;
@@ -130,7 +145,7 @@ int main()
     cairo_set_font_size(cr, size);
 
     // Write watermark text on surface
-    write_multiline(cr, width, height);
+    write_multiline(cr, width, height, config);
 
     // Write to image, close and exit
     cairo_surface_write_to_png(surface, "image.png");
