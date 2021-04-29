@@ -37,6 +37,21 @@ cfg_t *init_config()
 }
 
 /**
+ * Returns the current formatted date.
+ */
+void now(char *date_time, int size, const char *format)
+{
+    time_t t;
+    struct tm *tmp;
+
+    time(&t);
+    tmp = localtime(&t);
+
+    // Format date and time as dd/mm/YYYY HH:MM:SS
+    strftime(date_time, size, format, tmp);
+}
+
+/**
  * Calculates the width and height of all lines togheter.
  **/
 void measure_block_size(cairo_t *cr, const char *lines[], int *width, int *height)
@@ -68,16 +83,8 @@ void write_multiline(cairo_t *cr, int width, int height, cfg_t *config)
     // Get username
     char *username = getlogin();
 
-    // Get current date and time
-    time_t t;
-    struct tm *tmp;
     char date_time[50];
-
-    time(&t);
-    tmp = localtime(&t);
-
-    // Format date and time as dd/mm/YYYY HH:MM:SS
-    strftime(date_time, sizeof(date_time), "%d/%m/%Y %X", tmp);
+    now(date_time, sizeof(date_time), "%d/%m/%Y %X");
 
     // Build multiline text
     const char *lines[] = {line_one_text,
@@ -111,8 +118,10 @@ int main()
     // Init config
     cfg_t *config = init_config();
 
-    if (cfg_parse(config, "config.conf") == CFG_PARSE_ERROR)
-        return 1;
+    int parse_result = cfg_parse(config, "config.conf");
+
+    if (parse_result != CFG_SUCCESS)
+        return parse_result;
 
     cfg_t *source_config = cfg_getsec(config, "source");
     cfg_t *font_config = cfg_getsec(config, "font");
